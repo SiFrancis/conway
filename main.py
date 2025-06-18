@@ -1,8 +1,10 @@
-from itertools import permutations
+import random
+from os import name, system
+from time import sleep
 
-GRID_HEIGHT: int = 8
-GRID_WIDTH: int = 8
-TIME_LIMIT: int = 10  # in rounds
+GRID_HEIGHT: int = 20
+GRID_WIDTH: int = 20
+TIME_LIMIT: int = 1000  # in rounds
 
 grid: list[list[int]] = [[0 for _ in range(GRID_WIDTH)] for __ in range(GRID_HEIGHT)]
 
@@ -32,28 +34,76 @@ def getNeighbors(x: int, y: int):
     return n_dict
 
 
-def lifeLoop(initGrid: list[list[int]]):
+def makeN_Grid(grid: list[list[int]]):
+    n_grid = [[0 for _ in range(GRID_WIDTH)] for __ in range(GRID_HEIGHT)]
+    for y, row in enumerate(grid):
+        for x, _ in enumerate(row):
+            n_grid[y][x] = sum(list(getNeighbors(x, y).values()))
+
+    return n_grid
+
+
+def lifeRule(x: int, y: int, n_grid: list[list[int]]):
+    # new cell is born if dead cell has 3 living neighbors
+    if (grid[y][x] == 0) and (n_grid[y][x] == 3):
+        grid[y][x] = 1
+    # living cell survives if it has 2-3 living neighbors
+    elif grid[y][x] == 1:
+        if n_grid[y][x] not in [2, 3]:
+            grid[y][x] = 0
+
+
+def lifeLoop(animate: bool = False):
     t = TIME_LIMIT
     while t > 0:
-        pass
+        if animate:
+            if name == "nt":
+                _ = system("cls")
+            else:
+                _ = system("clear")
+            print(f"Grid at Turn {TIME_LIMIT - t + 1}:")
+            print_grid()
+            sleep(0.1)
+            if name == "nt":
+                _ = system("cls")
+            else:
+                _ = system("clear")
+            t -= 1
+        else:
+            print(f"Grid at Turn {TIME_LIMIT - t + 1}:")
+            print_grid()
+            print("\n\n")
+            t -= 1
+
+        n_grid = makeN_Grid(grid)
+        for y, row in enumerate(grid):
+            for x, _ in enumerate(row):
+                lifeRule(x, y, n_grid)
 
 
 def print_grid():
-    print(f"   {str(list(range(GRID_WIDTH)))[1:-1]}")
-    for i, row in enumerate(grid):
-        print(f"{i} {row}")
+    # print(f"   {str(list(range(GRID_WIDTH)))[1:-1]}")
+    for _, row in enumerate(grid):
+        boxes: str = "".join(["󱓻 " if x == 1 else "󱓼 " for x in row])
+        print(boxes)
 
 
 def main():
     print("Hello from conway!")
+    for i in range(136):
+        setCell(
+            random.randrange(2, GRID_WIDTH - 2), random.randrange(2, GRID_HEIGHT - 2), 1
+        )
+    # setCell(3, 3, 1)
+    # setCell(5, 6, 1)
+    # setCell(5, 4, 1)
+    # setCell(7, 4, 1)
+    # setCell(4, 6, 1)
+    # setCell(5, 8, 1)
+    # setCell(8, 3, 1)
+    # setCell(7, 7, 1)
     # print_grid()
-    setCell(4, 3, 1)
-    setCell(3, 3, 1)
-    setCell(5, 4, 1)
-    setCell(2, 1, 1)
-    print_grid()
-    n = getNeighbors(4, 3)
-    print(n)
+    lifeLoop(animate=True)
 
 
 if __name__ == "__main__":
