@@ -55,6 +55,12 @@ def lifeRule(x: int, y: int, n_grid: list[list[int]]):
 
 def lifeLoop(animate: bool = False):
     t = TIME_LIMIT
+    if name == "nt":
+        _ = system("cls")
+    else:
+        _ = system("clear")
+    print_grid()
+    sleep(1)
     while t > 0:
         if animate:
             if name == "nt":
